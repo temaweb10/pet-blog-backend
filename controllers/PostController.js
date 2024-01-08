@@ -23,7 +23,7 @@ export const getAll = async (req, res) => {
   try {
     const posts = await PostModel.find().populate("user").exec();
 
-    res.json(posts);
+    res.status(200).json(posts);
   } catch (error) {
     console.log(error);
     res.status(500).json({
@@ -31,6 +31,23 @@ export const getAll = async (req, res) => {
     });
   }
 };
+
+export const getLastTags = async (req, res) => {
+  try {
+    const posts = await PostModel.find().limit(5);
+    const tags = posts
+      .map((obj) => obj.tags)
+      .flat()
+      .slice(0, 5);
+    res.status(200).json(tags);
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({
+      message: "Не удалось получить теги",
+    });
+  }
+};
+
 export const getOne = async (req, res) => {
   try {
     const postId = req.params.id;
@@ -45,20 +62,22 @@ export const getOne = async (req, res) => {
       {
         returnDocument: "after",
       }
-    ).then((doc, err) => {
-      if (err) {
-        console.log(err);
-        return res.status(500).json({
-          message: "Failed to return the post",
-        });
-      }
-      if (!doc) {
-        return res.status(404).json({
-          message: "Post not found",
-        });
-      }
-      res.json(doc);
-    });
+    )
+      .then((doc, err) => {
+        if (err) {
+          console.log(err);
+          return res.status(500).json({
+            message: "Failed to return the post",
+          });
+        }
+        if (!doc) {
+          return res.status(404).json({
+            message: "Post not found",
+          });
+        }
+        res.json(doc);
+      })
+      .populate("user");
   } catch (err) {
     console.log(err);
     res.status(500).json({

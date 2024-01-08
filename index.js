@@ -1,3 +1,4 @@
+import cors from "cors";
 import dotenv from "dotenv";
 import express from "express";
 import mongoose from "mongoose";
@@ -12,7 +13,7 @@ import {
 dotenv.config();
 
 const app = express();
-
+app.use(cors());
 const storage = multer.diskStorage({
   destination: (_, __, cb) => {
     cb(null, "uploads");
@@ -73,6 +74,7 @@ app.post(
 );
 app.get("/posts", PostController.getAll);
 app.get("/posts/:id", PostController.getOne);
+app.get("/posts-tags", PostController.getLastTags);
 
 app.listen(4444, (err) => {
   if (err) {
